@@ -3,13 +3,13 @@
 using namespace std;
 
 const int num_of_walks = 40;
-const int seq_len = 5;
+const int seq_len = 4;
 int o[N];
 char dis[N][N];
 bool vis[N];
 int n, m;
 vector<int> E[N];
-char s[1000] = "Electronics_40_5_0000.txt";
+char s[1000] = "preprocess/Electronics_40_4_0000.txt";
 
 void link(int u, int v) {
     E[u].push_back(v);
@@ -34,7 +34,7 @@ void bfs(int S) {
 }
 
 int main() {
-    freopen("cora.in", "r", stdin);
+    freopen("edge_input/Electronics.in", "r", stdin);
     srand(time(0));
     scanf("%d%d",&n, &m);
 

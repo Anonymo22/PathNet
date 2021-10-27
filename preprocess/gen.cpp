@@ -3,7 +3,7 @@
 using namespace std;
 
 const int num_of_walks = 40;
-const int seq_len = 3;
+const int seq_len = 4;
 int o[N];
 char dis[N][N];
 bool vis[N];
@@ -33,8 +33,8 @@ void bfs(int S) {
 }
 
 int main() {
-    freopen("cornel.in", "r", stdin);
-    freopen("cornell_40_3_m.txt", "w",stdout);
+    freopen("edge_input/cornel.in", "r", stdin);
+    freopen("preprocess/cornell_40_4_m.txt", "w",stdout);
     srand(time(0));
     scanf("%d%d",&n, &m);
 
