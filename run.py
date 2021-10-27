@@ -29,7 +29,7 @@ from ast import literal_eval
 import warnings
 import time
 import gc
-from dataset import PlanetoidData
+from dataset import PlanetoidData  # Code in the outermost folder
 import tqdm
 
 import pickle
