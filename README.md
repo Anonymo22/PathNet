@@ -46,13 +46,17 @@ Synthetic graph generators are used to complete the synthesis experiment. At the
 We provide a synthetic label generator for Cora and Citeseer. The two generators will get a file with the same number of lines as the number of nodes in the original network, and each line represents the label of this node in the synthetic graph.
 
 syn_cora:
-Compile and run gen_cora_syn.cpp
+Compile and run *gen_cora_syn.cpp*
 
+```shell
 g++ gen_cora_syn.cpp -o gen_cora_syn -g -Wall -O2
 ./gen_cora_syn
+```
 
 syn_citeseer:
-Compile and run gen_citeseer_syn.cpp
+Compile and run *gen_citeseer_syn.cpp*
 
+```shell
 g++ gen_citeseer_syn.cpp -o gen_citeseer_syn -g -Wall -O2
 ./gen_citeseer_syn
+```
