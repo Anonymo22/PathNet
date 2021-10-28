@@ -1,8 +1,8 @@
 # PAGG: Path Aggregator for Graphs Beyond Homophily
 ## Fig. 1 in the paper:
 Fig. 1(a) stands for Homophily graph & Fig. 1(b)stands for Heterophily graph:
-![image]()
-![image]()
+![Fig. 1(a)](https://github.com/WWW2022PAGG/PAGG/blob/main/Figs_in_paper/homo.eps)
+![Fig. 1(b)](https://github.com/WWW2022PAGG/PAGG/blob/main/Figs_in_paper/hetero.eps)
 
 ## Path Sampler (preprocessing)
 This part can be done before training.
