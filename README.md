@@ -1,4 +1,9 @@
 # PAGG: Path Aggregator for Graphs Beyond Homophily
+## Fig. 1 in the paper:
+Fig. 1(a) stands for Homophily graph & Fig. 1(b)stands for Heterophily graph:
+![image]()
+![image]()
+
 ## Path Sampler (preprocessing)
 This part can be done before training.
 To generate the paths for dataset *data_name* (*e.g.* cora). In *gen.cpp*, we change the names of the input and output files to *data_name*, then compile and run *gen.cpp*. The program will generate a file containing all paths.
