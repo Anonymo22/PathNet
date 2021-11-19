@@ -48,7 +48,7 @@ parser.add_argument('-r', '--round', type=int, default=10)
 parser.add_argument('-hid', '--hidden_size', type=int, default=128)
 parser.add_argument('-nw', '--num_of_walks', type=int, default=40)
 parser.add_argument('-wl', '--walk_length', type=int, default=4)
-parser.add_argument('-name', '--data_name', type=str, default='cornell')
+parser.add_argument('-data', '--data_name', type=str, default='Cornell')
 parser.add_argument('-mode', '--model_mode', type=str, default='pagg')
 # parser.add_argument('-r', '--rand_seed', type=int, default=2)
 args = parser.parse_args()
@@ -67,7 +67,7 @@ name =args.data_name
 # start, end = 0, 1
 mode = args.model_mode
 save_file_name = "result_for_"+name
-splits_file_path = "geom-gcn/splits/"
+# splits_file_path = "geom-gcn/splits/"
 paths_root="preprocess/"
 
 # Seed
@@ -85,7 +85,7 @@ device = torch.device(args.cuda if torch.cuda.is_available() else 'cpu')
 
 def load_data_ranked(name):
     '''
-    Load data for cora, pubmed, citeseer, cornell
+    Load data for Cora, Cornell, Pubmed and Citeseer
     '''
     datasets = json.load(
         open("dataset.json"))
@@ -163,11 +163,11 @@ def get_whole_mask(y, ratio: list = [48, 32, 20], seed: int = 1234567):
 
 def load_data(dataset_name, round):
     '''
-    Load data for Nba, Electronics, bgp
+    Load data for Nba, Electronics, Bgp
     '''
-    numpy_x = np.load("/data/syf"+'/'+dataset_name+'/x.npy')
+    numpy_x = np.load("./other_data"+'/'+dataset_name+'/x.npy')
     x = torch.from_numpy(numpy_x).to(torch.float)
-    numpy_y = np.load("/data/syf"+'/'+dataset_name+'/y.npy')
+    numpy_y = np.load("./other_data"+'/'+dataset_name+'/y.npy')
     y = torch.from_numpy(numpy_y).to(torch.long)
     # numpy_edge_index = np.load("/data/syf"+'/'+dataset_name+'/edge_index.npy')
     # edge_index = torch.from_numpy(numpy_edge_index).to(torch.long)
@@ -275,7 +275,7 @@ def train_fixed_indices(X, Y, num_classes, mode, data_name, train_indices, val_i
     val_acc = 0  # validation
     train_bar = tqdm.tqdm(range(epochs), dynamic_ncols=True, unit='step')
 
-    if name in ['cora', 'citeseer', 'cornell', "Nba"]:  # nomarl datasets
+    if name in ['Cora', 'Citeseer', 'Cornell', "Nba"]:  # nomarl datasets
         neis_all = torch.tensor(walks, dtype=torch.long).view(
             1000, node_num, -1)
         path_type_all = torch.tensor(path_type_all, dtype=torch.long).view(
@@ -283,7 +283,7 @@ def train_fixed_indices(X, Y, num_classes, mode, data_name, train_indices, val_i
 
     for epoch in train_bar:
         # time1 = time.time()
-        if name in ['bgp', 'Electronics', 'pubmed']:   # large datasets
+        if name in ['Bgp', 'Electronics', 'Pubmed']:   # large datasets
             walks = []
             path_type = []
             path_file = paths_root+"{}_{}_{}_{:04d}.txt".format(
@@ -300,7 +300,7 @@ def train_fixed_indices(X, Y, num_classes, mode, data_name, train_indices, val_i
             path_type = torch.tensor(path_type, dtype=torch.long).view(
                 node_num, num_w, walk_len)
 
-        elif name in ['cora', 'citeseer', 'cornell', "Nba", 'wisconsin', 'texas']:
+        elif name in ['Cora', 'Citeseer', 'Citeseer', "Nba"]:
             neis = neis_all[epoch]
             path_type = path_type_all[epoch]
         predictor.train()
@@ -365,7 +365,7 @@ file = open("results/" + save_file_name + ".txt", "a")
 print(name)
 walks = []
 path_type = []
-if name in ['cora', 'citeseer', 'cornell', "Nba"]:
+if name in ['Cora', 'Citeseer', 'Citeseer', "Nba"]:
     path_file = paths_root+"{}_{}_{}_m.txt".format(
         name, num_of_walks, walk_length)
 
@@ -380,12 +380,12 @@ avg_test_1f1, avg_test_2f1, avg_test_rec, avg_test_prec, avg_test_acc, \
     std_test_1f1, std_test_2f1, std_test_rec, std_test_prec, std_test_acc = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 test_1f1s, test_2f1s, test_recs, test_precs, test_accs = [], [], [], [], []
 
-if name not in ['bgp', 'Nba', 'Electronics']:
+if name not in ['Bgp', 'Nba', 'Electronics']:
     (X, Y, num_classes, datasets) = load_data_ranked(name)
 
 for i in range(rounds):
     print('round', i)
-    if name in ['bgp', 'Nba', 'Electronics']:
+    if name in ['Bgp', 'Nba', 'Electronics']:
         (X, Y, num_classes, train_mask, val_mask, test_mask) = load_data(name, i)
     else:
         dataset_run = datasets[name]["dataset"]

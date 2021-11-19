@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#define N 100500
+#define N 100050
 using namespace std;
 
 const int num_of_walks = 40;
@@ -32,11 +32,34 @@ void bfs(int S) {
     return ; 
 }
 
-int main() {
-    freopen("edge_input/cornel.in", "r", stdin);
-    freopen("preprocess/cornell_40_4_m.txt", "w",stdout);
+char file_input[1000], file_output[1000];
+const char *default_file_input = "../edge_input/x.in";
+const char *default_file_output = "x_40_4_m.txt";
+int main(int argc, char *argv[]) {
+
+    if (argc == 1) {
+        cerr << "ERROR: The name of dataset is missing." << endl;
+        return 0;
+    }
+
+    int dataname_len = strlen(argv[1]);
+    int default_input_len = strlen(default_file_input);
+ 
+    for (int i=0;i<default_input_len;i++) file_input[i] = default_file_input[i];
+    for (int i=0;i<dataname_len;i++) file_input[i+14] = argv[1][i];
+    for (int i=0;i<dataname_len;i++) file_output[i] = argv[1][i];
+    for (int i=0;i<3;i++) file_input[dataname_len+14+i] = default_file_input[i+15];
+    for (int i=0;i<11;i++) file_output[dataname_len+i] = default_file_output[i+1];
+
+    // cout << "File input: " << file_input << endl;
+    // cout << "File output: " << file_output << endl;
+
+    freopen(file_input, "r", stdin);
+    freopen(file_output, "w",stdout);
     srand(time(0));
     scanf("%d%d",&n, &m);
+
+    cerr << n << endl;
 
 
     for (int i=0;i<n;i++) link(i, i);
