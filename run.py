@@ -31,7 +31,12 @@ import time
 import gc
 from dataset import PlanetoidData  # Code in the outermost folder
 import tqdm
-
+from data_loader import (
+    load_data_ranked,
+    load_data,
+    get_order,
+    get_whole_mask,
+)
 import argparse
 import pickle
 import gzip
@@ -57,18 +62,18 @@ args = parser.parse_args()
 # batch_size = 16
 lr = args.learning_rate
 weight_decay = args.weight_decay
-dropout=args.dropout
+dropout = args.dropout
 epochs = args.epoch
 rounds = args.round
-num_of_walks=args.num_of_walks
-walk_length=args.walk_length
-hidden_size=args.hidden_size
-name =args.data_name
+num_of_walks = args.num_of_walks
+walk_length = args.walk_length
+hidden_size = args.hidden_size
+name = args.data_name
 # start, end = 0, 1
 mode = args.model_mode
 save_file_name = "result_for_"+name
 # splits_file_path = "geom-gcn/splits/"
-paths_root="preprocess/"
+paths_root = "preprocess/"
 
 # Seed
 # random_seed = 1
@@ -79,107 +84,6 @@ paths_root="preprocess/"
 # torch.backends.cudnn.deterministic = True
 
 # Compute Homophily
-
-device = torch.device(args.cuda if torch.cuda.is_available() else 'cpu')
-
-
-def load_data_ranked(name):
-    '''
-    Load data for Cora, Cornell, Pubmed and Citeseer
-    '''
-    datasets = json.load(
-        open("dataset.json"))
-    dataset_run = datasets[name]["dataset"]
-    dataset_path = datasets[name]["dataset_path"][0]
-    dataset_path = "dataset" / Path(dataset_path)
-    val_size = datasets[name]["val_size"]
-
-    dataset = PlanetoidData(
-        dataset_str=dataset_run, dataset_path=dataset_path, val_size=val_size
-    )
-
-    # adj = dataset._sparse_data["sparse_adj"]
-    features = dataset._sparse_data["features"]
-    labels = dataset._dense_data["y_all"]
-
-    # n_nodes, n_feats = features.shape[0], features.shape[1]
-    num_classes = labels.shape[-1]
-
-    # G = cg.csrgraph(adj, threads=0)
-    # G.set_threads(0)  # number of threads to use. 0 is full use
-    # edge = nx.from_scipy_sparse_matrix(adj)  # indices + edge_weight
-    X = torch.tensor(features.todense(), dtype=torch.float)
-    label = torch.tensor(np.argmax(labels, 1), dtype=torch.long)
-    return (X, label, num_classes, datasets)
-
-
-def get_order(ratio: list, masked_index: torch.Tensor, total_node_num: int, seed: int = 1234567):
-    '''
-    work for "get_whole_mask"
-    '''
-    random.seed(seed)
-
-    masked_node_num = len(masked_index)
-    shuffle_criterion = list(range(masked_node_num))
-    random.shuffle(shuffle_criterion)
-
-    # train_val_test_list=[int(i) for i in ratio.split('-')]
-    train_val_test_list = ratio
-    tvt_sum = sum(train_val_test_list)
-    tvt_ratio_list = [i/tvt_sum for i in train_val_test_list]
-    train_end_index = int(tvt_ratio_list[0]*masked_node_num)
-    val_end_index = train_end_index+int(tvt_ratio_list[1]*masked_node_num)
-
-    train_mask_index = shuffle_criterion[:train_end_index]
-    val_mask_index = shuffle_criterion[train_end_index:val_end_index]
-    test_mask_index = shuffle_criterion[val_end_index:]
-
-    train_mask = torch.zeros(total_node_num, dtype=torch.bool)
-    train_mask[masked_index[train_mask_index]] = True
-    val_mask = torch.zeros(total_node_num, dtype=torch.bool)
-    val_mask[masked_index[val_mask_index]] = True
-    test_mask = torch.zeros(total_node_num, dtype=torch.bool)
-    test_mask[masked_index[test_mask_index]] = True
-
-    return (train_mask, val_mask, test_mask)
-
-
-def get_whole_mask(y, ratio: list = [48, 32, 20], seed: int = 1234567):
-    '''
-    work for "load_data", random_spilt at [48, 32, 20] ratio
-    '''
-    y_have_label_mask = y != -1
-    total_node_num = len(y)
-    y_index_tensor = torch.tensor(list(range(total_node_num)), dtype=int)
-    masked_index = y_index_tensor[y_have_label_mask]
-    while True:
-        (train_mask, val_mask, test_mask) = get_order(
-            ratio, masked_index, total_node_num, seed)
-        # if check_train_containing(train_mask,y):
-        return (train_mask, val_mask, test_mask)
-        # else:
-        #     seed+=1
-
-
-def load_data(dataset_name, round):
-    '''
-    Load data for Nba, Electronics, Bgp
-    '''
-    numpy_x = np.load("./other_data"+'/'+dataset_name+'/x.npy')
-    x = torch.from_numpy(numpy_x).to(torch.float)
-    numpy_y = np.load("./other_data"+'/'+dataset_name+'/y.npy')
-    y = torch.from_numpy(numpy_y).to(torch.long)
-    # numpy_edge_index = np.load("/data/syf"+'/'+dataset_name+'/edge_index.npy')
-    # edge_index = torch.from_numpy(numpy_edge_index).to(torch.long)
-    (train_mask, val_mask, test_mask) = get_whole_mask(y, seed=round+1)
-
-    lbl_set = []
-    for lbl in y:
-        if lbl not in lbl_set:
-            lbl_set.append(lbl)
-    num_classes = len(lbl_set)
-
-    return x, y, num_classes, train_mask, val_mask, test_mask
 
 
 class PAGG(MessagePassing):
@@ -422,10 +326,10 @@ std_test_2f1 = np.std(np.array(test_2f1s))
 std_test_prec = np.std(np.array(test_precs))
 
 print(name+"_"+str(num_of_walks)+"_" +
-        str(walk_length)+'_'+str(hidden_size)+"\n")
+      str(walk_length)+'_'+str(hidden_size)+"\n")
 print(mode+" Avg for {}: acc{:.4f} ± {:.4f}\t prec{:.4f} ± {:.4f}\t rec{:.4f} ± {:.4f}\t maf1{:.4f} ± {:.4f}\t mif1{:.4f} ± {:.4f}\t ".format(
     name, avg_test_acc, std_test_acc, avg_test_prec, std_test_prec, avg_test_rec, std_test_rec, avg_test_1f1, std_test_1f1, avg_test_2f1, std_test_2f1))
 print(name+"_"+str(num_of_walks)+"_"+str(walk_length
-                                            )+'_'+str(hidden_size)+"\n", file=file)
+                                         )+'_'+str(hidden_size)+"\n", file=file)
 print(mode+" Avg for {}: acc{:.4f} ± {:.4f}\t prec{:.4f} ± {:.4f}\t rec{:.4f} ± {:.4f}\t maf1{:.4f} ± {:.4f}\t mif1{:.4f} ± {:.4f}\t ".format(
     name, avg_test_acc, std_test_acc, avg_test_prec, std_test_prec, avg_test_rec, std_test_rec, avg_test_1f1, std_test_1f1, avg_test_2f1, std_test_2f1), file=file)
