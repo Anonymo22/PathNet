@@ -24,7 +24,6 @@ from torch_geometric.nn import MessagePassing, GCNConv
 from torch_geometric.utils import add_self_loops, degree
 from sklearn.metrics import f1_score, accuracy_score, recall_score, precision_score
 from torch.nn.parameter import Parameter
-import csrgraph as cg
 from ast import literal_eval
 import warnings
 import time
@@ -38,13 +37,13 @@ from data_loader import (
     get_whole_mask,
 )
 import argparse
-import pickle
-import gzip
+# import pickle
+# import gzip
 warnings.filterwarnings('ignore')
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('-c', '--cuda', type=str, default='cuda:0')
+parser.add_argument('-c', '--cuda', type=str, default='cuda:1')
 parser.add_argument('-lr', '--learning_rate', type=float, default=0.005)
 parser.add_argument('-dr', '--dropout', type=float, default=0.9)
 parser.add_argument('-e', '--epoch', type=int, default=1000)
@@ -53,7 +52,7 @@ parser.add_argument('-r', '--round', type=int, default=10)
 parser.add_argument('-hid', '--hidden_size', type=int, default=128)
 parser.add_argument('-nw', '--num_of_walks', type=int, default=40)
 parser.add_argument('-wl', '--walk_length', type=int, default=4)
-parser.add_argument('-data', '--data_name', type=str, default='Cornell')
+parser.add_argument('-data', '--data_name', type=str, default='cornell')
 parser.add_argument('-mode', '--model_mode', type=str, default='pagg')
 # parser.add_argument('-r', '--rand_seed', type=int, default=2)
 args = parser.parse_args()
@@ -73,8 +72,9 @@ name = args.data_name
 mode = args.model_mode
 save_file_name = "result_for_"+name
 # splits_file_path = "geom-gcn/splits/"
-paths_root = "preprocess/"
-
+# paths_root = "preprocess/"  # public
+paths_root = "/data/syf/rw/"  # 17
+device = args.cuda
 # Seed
 # random_seed = 1
 # random.seed(random_seed)
@@ -179,7 +179,7 @@ def train_fixed_indices(X, Y, num_classes, mode, data_name, train_indices, val_i
     val_acc = 0  # validation
     train_bar = tqdm.tqdm(range(epochs), dynamic_ncols=True, unit='step')
 
-    if name in ['Cora', 'Citeseer', 'Cornell', "Nba"]:  # nomarl datasets
+    if name in ['cora', 'citeseer', 'cornell', "Nba"]:  # nomarl datasets
         neis_all = torch.tensor(walks, dtype=torch.long).view(
             1000, node_num, -1)
         path_type_all = torch.tensor(path_type_all, dtype=torch.long).view(
@@ -187,7 +187,7 @@ def train_fixed_indices(X, Y, num_classes, mode, data_name, train_indices, val_i
 
     for epoch in train_bar:
         # time1 = time.time()
-        if name in ['Bgp', 'Electronics', 'Pubmed']:   # large datasets
+        if name in ['Bgp', 'Electronics', 'pubmed']:   # large datasets
             walks = []
             path_type = []
             path_file = paths_root+"{}_{}_{}_{:04d}.txt".format(
@@ -204,7 +204,7 @@ def train_fixed_indices(X, Y, num_classes, mode, data_name, train_indices, val_i
             path_type = torch.tensor(path_type, dtype=torch.long).view(
                 node_num, num_w, walk_len)
 
-        elif name in ['Cora', 'Citeseer', 'Citeseer', "Nba"]:
+        elif name in ['cora', 'citeseer', 'cornell', "Nba"]:
             neis = neis_all[epoch]
             path_type = path_type_all[epoch]
         predictor.train()
@@ -269,7 +269,7 @@ file = open("results/" + save_file_name + ".txt", "a")
 print(name)
 walks = []
 path_type = []
-if name in ['Cora', 'Citeseer', 'Citeseer', "Nba"]:
+if name in ['cora', 'citeseer', 'cornell', "Nba"]:
     path_file = paths_root+"{}_{}_{}_m.txt".format(
         name, num_of_walks, walk_length)
 

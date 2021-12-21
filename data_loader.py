@@ -24,7 +24,7 @@ from torch_geometric.nn import MessagePassing, GCNConv
 from torch_geometric.utils import add_self_loops, degree, from_scipy_sparse_matrix
 from sklearn.metrics import f1_score, accuracy_score, recall_score, precision_score
 from torch.nn.parameter import Parameter
-import csrgraph as cg
+# import csrgraph as cg
 from ast import literal_eval
 import warnings
 import time
@@ -37,7 +37,9 @@ import pickle
 import gzip
 warnings.filterwarnings('ignore')
 
-json_path='./'
+# json_path='./'  # public
+json_path = '/home/syf/workspace/jupyters/configs/'
+
 
 def load_data_ranked(name):
     '''
