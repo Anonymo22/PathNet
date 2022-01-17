@@ -1,6 +1,6 @@
 # Beyond Homophily: Structure-aware Path Aggregation Graph Neural Network
 ## PathNet
-![PathNet](./Figs_in_paper/PathNet.pdf)
+![PathNet](https://raw.github.com/Anonymo22/PathNet/raw/whole/Figs_in_paper/PathNet.pdf)
 
 ## File folders
 
