@@ -49,7 +49,7 @@ g++ gen_epoch_merw.cpp -o gen_epoch_merw -g -Wall -O2 -mcmodel=medium
 
 `dataset.py`: data usage code (imported in run.py ).
 
-`run.py`: main code.
+`PathNet_run.py`: main code.
 
 ### model usage
 ```shell
