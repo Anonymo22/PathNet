@@ -50,18 +50,18 @@ int main(int argc, char *argv[])
 
     stringstream ss1, ss2;
     ss1.str("");
-    ss1 << "../edge_input/";
+    ss1 << "./edge_input/";
     ss1 << argv[1];
     ss1 << ".in";
 
     ss2.str("");
-    ss2 << "./";
+    ss2 << "/data/syf/rw/";
     ss2 << argv[1];
     ss2 << "_";
     ss2 << argv[2];
     ss2 << "_";
     ss2 << argv[3];
-    ss2 << "_m.txt";
+    ss2 << "_rw.txt";
 
     num_of_walks = atoi(argv[2]);
     seq_len = atoi(argv[3]);
